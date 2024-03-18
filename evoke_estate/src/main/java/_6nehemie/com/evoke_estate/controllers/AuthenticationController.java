@@ -4,6 +4,7 @@ import _6nehemie.com.evoke_estate.dto.requests.LoginDto;
 import _6nehemie.com.evoke_estate.dto.requests.RegisterDto;
 import _6nehemie.com.evoke_estate.dto.responses.AuthenticationResponse;
 import _6nehemie.com.evoke_estate.services.AuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,13 +22,13 @@ public class AuthenticationController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterDto request) {
+    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterDto request) {
 
         return ResponseEntity.ok(authenticationService.register(request));
     }
     
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginDto request) {
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginDto request) {
 
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }

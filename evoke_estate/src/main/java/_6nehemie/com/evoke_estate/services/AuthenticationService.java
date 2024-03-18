@@ -3,6 +3,8 @@ package _6nehemie.com.evoke_estate.services;
 import _6nehemie.com.evoke_estate.dto.requests.LoginDto;
 import _6nehemie.com.evoke_estate.dto.requests.RegisterDto;
 import _6nehemie.com.evoke_estate.dto.responses.AuthenticationResponse;
+import _6nehemie.com.evoke_estate.enums.Role;
+import _6nehemie.com.evoke_estate.exceptions.BadRequestException;
 import _6nehemie.com.evoke_estate.models.User;
 import _6nehemie.com.evoke_estate.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,27 @@ public class AuthenticationService {
     }
     
     public AuthenticationResponse register(RegisterDto request) {
+        
+        // Checks if username is already taken
+        if (userRepository.existsByUsername(request.username())) {
+            throw new BadRequestException("Username is already taken");
+        }
+        
+        // Checks if email is already taken
+        if (userRepository.existsByEmail(request.email())) {
+            throw new BadRequestException("Email is already taken");
+        }
+        
+        // Checks password confirmation
+        if (!request.password().matches(request.passwordConfirmation())) {
+            throw new BadRequestException("Passwords do not match");
+        }
+        
+        // Checks password length
+        if (request.password().length() < 6) {
+            throw new BadRequestException("Password must be at least 6 characters long");
+        }
+        
         User user = new User();
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
@@ -34,7 +57,8 @@ public class AuthenticationService {
         user.setLocation(request.location());
         user.setPassword(passwordEncoder.encode(request.password()));
         
-        user.setRole(request.role());
+        Role role = request.role() != null ? request.role() : Role.USER;
+        user.setRole(role);
         
         user = userRepository.save(user);
         

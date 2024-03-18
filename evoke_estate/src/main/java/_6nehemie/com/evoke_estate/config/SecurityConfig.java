@@ -1,5 +1,6 @@
 package _6nehemie.com.evoke_estate.config;
 
+import _6nehemie.com.evoke_estate.exceptions.CustomAccessDeniedHandler;
 import _6nehemie.com.evoke_estate.filters.JwtAuthenticationFilter;
 import _6nehemie.com.evoke_estate.services.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
@@ -30,9 +31,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        RestAuthenticationEntryPoint restAuthenticationEntryPoint = new RestAuthenticationEntryPoint();
+        CustomAccessDeniedHandler customAccessDeniedHandler = new CustomAccessDeniedHandler();
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(ex -> {
+                    ex.authenticationEntryPoint(restAuthenticationEntryPoint);
+                    ex.accessDeniedHandler(customAccessDeniedHandler);
+                }) // Handle auth errors
                 .authorizeHttpRequests(
                         request -> request
                                 .requestMatchers(HttpMethod.POST ,"/api/v1/auth/login").permitAll()
