@@ -2,8 +2,7 @@ package _6nehemie.com.evoke_estate.dto.responses;
 
 public record AuthenticationResponse(
         Long id,
-        String firstName,
-        String lastName,
+        String fullName,
         String username,
         String email,
         String location,

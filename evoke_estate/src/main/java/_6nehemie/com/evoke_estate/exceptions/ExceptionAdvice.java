@@ -9,6 +9,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class ExceptionAdvice {
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleBadRequestException(NotFoundException exception, HttpServletRequest request) {
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse();
+
+        exceptionResponse.setTimestamp(System.currentTimeMillis());
+        exceptionResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        exceptionResponse.setError("Not Found");
+        exceptionResponse.setMessage(exception.getMessage());
+        exceptionResponse.setPath(request.getRequestURI());
+
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
     
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException exception, HttpServletRequest request) {

@@ -30,7 +30,7 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegisterDto request) {
         
         // Checks if username is already taken
-        if (userRepository.existsByUsername(request.username())) {
+        if (userRepository.existsByUsername(request.username()) || "me".matches(request.username())) {
             throw new BadRequestException("Username is already taken");
         }
         
@@ -49,12 +49,17 @@ public class AuthenticationService {
             throw new BadRequestException("Password must be at least 6 characters long");
         }
         
+        if (request.termsAndConditions() == null || !request.termsAndConditions()) {
+            throw new BadRequestException("Terms and conditions must be accepted");
+        }
+        
+        // Combines first name and last name to create full name
+        String fullName = request.firstName() + " " + request.lastName();
+        
         User user = new User();
-        user.setFirstName(request.firstName());
-        user.setLastName(request.lastName());
+        user.setFullName(fullName);
         user.setUsername(request.username());
         user.setEmail(request.email());
-        user.setLocation(request.location());
         user.setPassword(passwordEncoder.encode(request.password()));
         
         Role role = request.role() != null ? request.role() : Role.USER;
@@ -66,8 +71,7 @@ public class AuthenticationService {
         
         return new AuthenticationResponse(
                 user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
+                user.getFullName(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getLocation(),
@@ -92,8 +96,7 @@ public class AuthenticationService {
 
         return new AuthenticationResponse(
                 user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
+                user.getFullName(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getLocation(),

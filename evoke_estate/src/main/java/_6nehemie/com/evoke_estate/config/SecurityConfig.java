@@ -42,8 +42,16 @@ public class SecurityConfig {
                 }) // Handle auth errors
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers(HttpMethod.POST ,"/api/v1/auth/login").permitAll()
-                                .requestMatchers(HttpMethod.POST,"/api/v1/auth/register").permitAll()
+                                //? Auth
+                                .requestMatchers(HttpMethod.POST ,"/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/auth/register").permitAll()
+                                
+                                //? Users
+                                .requestMatchers(HttpMethod.GET,"/users/me").authenticated()
+                                .requestMatchers(HttpMethod.GET,"/users/{username}").permitAll()
+                                
+                                .requestMatchers(HttpMethod.GET,"/test").authenticated()
+                                
                                 .anyRequest().authenticated()
                 )
                 // tells what userDetailsService we need to use to spring

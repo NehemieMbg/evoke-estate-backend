@@ -1,11 +1,9 @@
 package _6nehemie.com.evoke_estate.dto.responses;
 
-public record UserResponseDto(
+public record UserByUsernameResponseDto(
         Long id,
         String fullName,
         String username,
-        String email,
-        String country,
         String title,
         String description
 ) {
