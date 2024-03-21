@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 
 public record UpdateUserEmailDto(
-        @Email(message = "Email is invalid")
-        @NotEmpty(message = "Email is required")
+        @Email(message = "New email is invalid")
+        @NotEmpty(message = "New email is required")
         String email,
         @Email(message = "Confirm email is invalid")
         @NotEmpty(message = "Confirm email is required")

@@ -5,7 +5,7 @@ public record UserResponseDto(
         String fullName,
         String username,
         String email,
-        String country,
+        String location,
         String title,
         String description
 ) {

@@ -50,6 +50,13 @@ public class UserController {
         String username = userDetails.getUsername();
         return userService.updatePassword(username, request);
     }
+    
+    @DeleteMapping("/me")
+    public UpdateUserInfoResponseDto deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        
+        String username = userDetails.getUsername();
+        return userService.deleteCurrentUser(username);
+    }
 
     // Map user by username
     @GetMapping("/{username}")
