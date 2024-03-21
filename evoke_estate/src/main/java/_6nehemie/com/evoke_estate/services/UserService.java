@@ -137,6 +137,8 @@ public class UserService {
         if (!userRepository.existsByUsername(username)) {
             throw new NotFoundException("User not found");
         }
+        
+        // * To add: change token status to inactive
 
         userRepository.deleteByUsername(username);
         
