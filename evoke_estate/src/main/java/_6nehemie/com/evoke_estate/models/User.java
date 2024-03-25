@@ -38,10 +38,10 @@ public class User implements UserDetails {
 
     // Followers
     @OneToMany(mappedBy = "following")
-    private Set<Follow> followers = new HashSet<>();
+    private Set<Follow> following = new HashSet<>();
 
     @OneToMany(mappedBy = "follower")
-    private Set<Follow> following = new HashSet<>();
+    private Set<Follow> followers = new HashSet<>();
     
     // Subfields
     private String avatar;

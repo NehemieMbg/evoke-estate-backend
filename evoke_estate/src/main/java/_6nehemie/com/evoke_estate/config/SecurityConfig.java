@@ -54,6 +54,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/posts/user/*").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/posts/*").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/posts").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/follows/*").permitAll()
                                 
                                 .requestMatchers(HttpMethod.GET,"/test").authenticated()
                                 

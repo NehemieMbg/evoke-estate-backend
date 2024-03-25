@@ -44,9 +44,6 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostPostResponseDto> createPost(@AuthenticationPrincipal UserDetails userDetails, @Valid @ModelAttribute PostDto request) {
-        System.out.println("Title: " + request.title());
-        System.out.println("Description: " + request.description());
-        System.out.println("Image: " + request.image());
 
         return ResponseEntity.ok(postService.createPost(userDetails.getUsername(), request));
     }

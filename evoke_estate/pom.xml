@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>_6nehemie.com</groupId>
-    <artifactId>evoke_estate</artifactId>
+    <artifactId>server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>evoke_estate</name>
     <description>evoke_estate</description>

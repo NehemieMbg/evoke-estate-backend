@@ -14,7 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -22,12 +24,15 @@ public class UserService {
     private final S3Service s3Service;
     private final PostService postService;
     private final UserRepository userRepository;
+    
+    private final FollowService followService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(S3Service s3Service, PostService postService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(S3Service s3Service, PostService postService, UserRepository userRepository, FollowService followService, PasswordEncoder passwordEncoder) {
         this.s3Service = s3Service;
         this.postService = postService;
         this.userRepository = userRepository;
+        this.followService = followService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -47,16 +52,42 @@ public class UserService {
     }
 
     public UserByUsernameResponseDto getUserByUsername(String username) {
-        Optional<User> user = userRepository.findByUsernameOrEmail(username);
-
-        return user.map(value -> new UserByUsernameResponseDto(
-                value.getId(),
-                value.getFullName(),
-                value.getUsername(),
-                value.getAvatar(),
-                value.getTitle(),
-                value.getDescription()
-        )).orElseThrow(() -> new NotFoundException("User not found"));
+        User user = userRepository.findByUsernameOrEmail(username).orElseThrow(
+            () -> new NotFoundException("User not found")
+        );
+        
+        List<UserUsernameSimpleResponseDto> following = user.getFollowing().stream().map(
+                currentFollowing -> new UserUsernameSimpleResponseDto(
+                        currentFollowing.getFollower().getId(),
+                        currentFollowing.getFollower().getFullName(),
+                        currentFollowing.getFollower().getUsername(),
+                        currentFollowing.getFollower().getAvatar(),
+                        currentFollowing.getFollower().getTitle(),
+                        currentFollowing.getFollower().getDescription()
+                )
+        ).toList();
+        
+        List<UserUsernameSimpleResponseDto> followers = user.getFollowers().stream().map(
+                currentFollower -> new UserUsernameSimpleResponseDto(
+                        currentFollower.getFollowing().getId(),
+                        currentFollower.getFollowing().getFullName(),
+                        currentFollower.getFollowing().getUsername(),
+                        currentFollower.getFollowing().getAvatar(),
+                        currentFollower.getFollowing().getTitle(),
+                        currentFollower.getFollowing().getDescription()
+                )
+        ).toList();
+        
+        return new UserByUsernameResponseDto(
+                user.getId(),
+                user.getFullName(),
+                user.getUsername(),
+                user.getAvatar(),
+                user.getTitle(),
+                user.getDescription(),
+                followers,
+                following
+        );
     }
 
     public UpdateUserInfoResponseDto updateCurrentUser(String username, UpdateUserInfoDto request) {

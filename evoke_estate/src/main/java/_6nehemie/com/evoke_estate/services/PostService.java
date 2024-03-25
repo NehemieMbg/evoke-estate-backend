@@ -6,6 +6,7 @@ import _6nehemie.com.evoke_estate.dto.responses.PublicUserResponseDto;
 import _6nehemie.com.evoke_estate.dto.responses.UserResponseDto;
 import _6nehemie.com.evoke_estate.exceptions.BadRequestException;
 import _6nehemie.com.evoke_estate.exceptions.NotFoundException;
+import _6nehemie.com.evoke_estate.models.Follow;
 import _6nehemie.com.evoke_estate.models.Post;
 import _6nehemie.com.evoke_estate.models.User;
 import _6nehemie.com.evoke_estate.repositories.PostRepository;
