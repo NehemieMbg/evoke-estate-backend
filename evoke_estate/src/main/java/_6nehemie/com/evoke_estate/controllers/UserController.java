@@ -1,16 +1,14 @@
 package _6nehemie.com.evoke_estate.controllers;
 
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserEmailDto;
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserInfoDto;
 import _6nehemie.com.evoke_estate.dto.responses.UserByUsernameResponseDto;
 import _6nehemie.com.evoke_estate.dto.responses.UserResponseDto;
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserInfoResponseDto;
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserPasswordDto;
+import _6nehemie.com.evoke_estate.dto.user.*;
 import _6nehemie.com.evoke_estate.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
@@ -28,6 +26,20 @@ public class UserController {
 
         String username = userDetails.getUsername();
         return userService.getCurrentUser(username);
+    }
+    
+    @PutMapping("/me/avatar")
+    public AvatarUploadResponseDto updateAvatar(@AuthenticationPrincipal UserDetails userDetails, @RequestParam("avatar") MultipartFile avatar) {
+        
+        String username = userDetails.getUsername();
+        return userService.updateAvatar(username, avatar);
+    }
+    
+    @DeleteMapping("/me/avatar")
+    public AvatarDeleteResponseDto deleteAvatar(@AuthenticationPrincipal UserDetails userDetails) {
+
+        String username = userDetails.getUsername();
+        return userService.deleteAvatar(username);
     }
 
     @PutMapping("/me")

@@ -1,0 +1,15 @@
+package _6nehemie.com.evoke_estate.repositories;
+
+import _6nehemie.com.evoke_estate.models.Post;
+import _6nehemie.com.evoke_estate.models.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface PostRepository extends JpaRepository<Post, Long> {
+    
+    List<Post> findAllByUser(User user);
+    void deleteAllByUser(User user);
+    List<Post> findAllByOrderByCreatedAtDesc();
+    List<Post> findAllByUserOrderByCreatedAtDesc(User user);
+}

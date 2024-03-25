@@ -50,6 +50,11 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/users/me").authenticated()
                                 .requestMatchers(HttpMethod.GET,"/users/{username}").permitAll()
                                 
+                                //? Posts
+                                .requestMatchers(HttpMethod.GET,"/posts/user/*").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/posts/*").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/posts").permitAll()
+                                
                                 .requestMatchers(HttpMethod.GET,"/test").authenticated()
                                 
                                 .anyRequest().authenticated()

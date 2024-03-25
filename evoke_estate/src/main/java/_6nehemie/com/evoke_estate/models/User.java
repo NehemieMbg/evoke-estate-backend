@@ -11,7 +11,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity(name = "users")
 @Getter
@@ -33,11 +35,24 @@ public class User implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    // Followers
+    @OneToMany(mappedBy = "following")
+    private Set<Follow> followers = new HashSet<>();
+
+    @OneToMany(mappedBy = "follower")
+    private Set<Follow> following = new HashSet<>();
     
     // Subfields
+    private String avatar;
+    private String avatarKey;
     private String location;
     private String title;
     private String description;
+
+    // Posts
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

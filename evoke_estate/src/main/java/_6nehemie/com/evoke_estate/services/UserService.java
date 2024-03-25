@@ -1,11 +1,9 @@
 package _6nehemie.com.evoke_estate.services;
 
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserEmailDto;
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserInfoDto;
+import _6nehemie.com.evoke_estate.dto.S3UploadDto;
+import _6nehemie.com.evoke_estate.dto.user.*;
 import _6nehemie.com.evoke_estate.dto.responses.UserByUsernameResponseDto;
 import _6nehemie.com.evoke_estate.dto.responses.UserResponseDto;
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserInfoResponseDto;
-import _6nehemie.com.evoke_estate.dto.user.UpdateUserPasswordDto;
 import _6nehemie.com.evoke_estate.exceptions.BadRequestException;
 import _6nehemie.com.evoke_estate.exceptions.NotFoundException;
 import _6nehemie.com.evoke_estate.models.User;
@@ -14,16 +12,21 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
 @Service
 public class UserService {
 
+    private final S3Service s3Service;
+    private final PostService postService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(S3Service s3Service, PostService postService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.s3Service = s3Service;
+        this.postService = postService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -36,6 +39,7 @@ public class UserService {
                 value.getFullName(),
                 value.getUsername(),
                 value.getEmail(),
+                value.getAvatar(),
                 value.getLocation(),
                 value.getTitle(),
                 value.getDescription()
@@ -49,6 +53,7 @@ public class UserService {
                 value.getId(),
                 value.getFullName(),
                 value.getUsername(),
+                value.getAvatar(),
                 value.getTitle(),
                 value.getDescription()
         )).orElseThrow(() -> new NotFoundException("User not found"));
@@ -134,14 +139,69 @@ public class UserService {
 
     @Transactional
     public UpdateUserInfoResponseDto deleteCurrentUser(String username) {
+        
+        User user = userRepository.findByUsernameOrEmail(username).orElseThrow(
+            () -> new NotFoundException("User not found")
+        );
+        
+        //? Check if user has an avatar and delete it from S3
+        if (user.getAvatarKey() != null) {
+            s3Service.deleteFile(user.getAvatarKey());
+        }
+        
         if (!userRepository.existsByUsername(username)) {
             throw new NotFoundException("User not found");
         }
         
-        // * To add: change token status to inactive
+        postService.deleteAllPostsByUser(user);
 
         userRepository.deleteByUsername(username);
         
         return new UpdateUserInfoResponseDto("User was deleted", HttpStatus.OK.value());
+    }
+    
+    public AvatarUploadResponseDto updateAvatar(String username, MultipartFile avatar) {
+
+        System.out.println("File: " + avatar);
+        
+        // Find user by username
+        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
+        User user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
+        
+        // Remove previous avatar from S3
+
+        //? Check if user has an avatar and delete it from S3
+        if (user.getAvatar() != null && user.getAvatarKey() != null) {
+            s3Service.deleteFile(user.getAvatarKey());
+        }
+        
+        // Upload new avatar to S3
+        S3UploadDto avatarUrl = s3Service.uploadFile(avatar);
+
+        //? Update the new user avatar URL and KEY in the database
+        user.setAvatar(avatarUrl.fileUrl());
+        user.setAvatarKey(avatarUrl.fileKey());
+        userRepository.save(user);
+        
+        return new AvatarUploadResponseDto(user.getAvatar(), "Avatar was updated", HttpStatus.CREATED.value());
+    }
+
+    public AvatarDeleteResponseDto deleteAvatar(String username) {
+            
+            // Find user by username
+            Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
+            User user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
+            
+            //? Check if user has an avatar and delete it from S3
+            if (user.getAvatarKey() != null) {
+                s3Service.deleteFile(user.getAvatarKey());
+            }
+            
+            //? Update the new user avatar URL and KEY in the database
+            user.setAvatar(null);
+            user.setAvatarKey(null);
+            userRepository.save(user);
+            
+            return new AvatarDeleteResponseDto("Avatar was deleted", HttpStatus.OK.value());
     }
 }
